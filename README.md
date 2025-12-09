@@ -89,8 +89,4 @@ password: Password@123
   "No upcoming tasks!"
   ```
 
-**NOTE: I have implemented the dashboard using ORM aggregation, not manual Python loops.**
 
----
-
-If you want, I can also generate a **full professional README with sections, formatting, screenshots, and Postman usage instructions**.
