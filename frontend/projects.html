@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Projects</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="projects.html">Projects</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+
+    <h2>Create Project</h2>
+    <input id="pname" placeholder="Project Name">
+    <input id="pdesc" placeholder="Description">
+    <button onclick="createProject()">Create Project</button>
+
+    <h2>My Projects</h2>
+    <button onclick="loadProjects()">Reload</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody id="projTable"></tbody>
+    </table>
+
+    <script src="utils.js"></script>
+    <script>
+
+        async function createProject() {
+            const response = await fetch("http://127.0.0.1:8000/projects/", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: pname.value,
+                    description: pdesc.value
+                })
+            });
+
+            const data = await safeJson(response);
+
+            if (data.error) return showToast(data.error, "error");
+
+            showToast("Project created!");
+            loadProjects();
+        }
+
+        function openProject(id) {
+            go(`tasks.html?project_id=${id}`);
+        }
+
+        async function loadProjects() {
+            const response = await fetch("http://127.0.0.1:8000/projects/", {
+                method: "GET",
+                credentials: "include"
+            });
+
+            const data = await safeJson(response);
+
+            let rows = "";
+            data.projects?.forEach(p => {
+                rows += `
+                    <tr class="clickable" onclick="openProject(${p.id})">
+                        <td>${p.id}</td>
+                        <td>${p.name}</td>
+                        <td>${p.description}</td>
+                    </tr>
+                `;
+            });
+
+            projTable.innerHTML = rows;
+        }
+
+        loadProjects();
+
+    </script>
+
+</body>
+
+</html>

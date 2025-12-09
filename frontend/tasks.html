@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tasks</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="projects.html">Projects</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+
+    <h2>Tasks for Project</h2>
+    <p id="projInfo"></p>
+
+    <h3>Create Task</h3>
+    <input id="title" placeholder="Task Title">
+    <input id="priority" placeholder="Priority 1-5">
+    <input id="dueDate" type="date">
+
+    <button onclick="createTask()">Create Task</button>
+
+    <h3>Task List</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Due Date</th>
+            </tr>
+        </thead>
+        <tbody id="taskTable"></tbody>
+    </table>
+
+    <script src="utils.js"></script>
+    <script>
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get("project_id");
+
+        projInfo.innerText = "Project ID: " + projectId;
+
+        async function createTask() {
+            const response = await fetch(
+                `http://127.0.0.1:8000/projects/${projectId}/tasks/`,
+                {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        title: title.value,
+                        priority: priority.value,
+                        due_date: dueDate.value
+                    })
+                }
+            );
+
+            const data = await safeJson(response);
+
+            if (data.error) return showToast(data.error, "error");
+
+            showToast("Task created!");
+            loadTasks();
+        }
+
+        async function loadTasks() {
+            const response = await fetch(
+                `http://127.0.0.1:8000/tasks/?project_id=${projectId}`,
+                { method: "GET", credentials: "include" }
+            );
+
+            const data = await safeJson(response);
+
+            let rows = "";
+            data.tasks?.forEach(t => {
+                rows += `
+                    <tr>
+                        <td>${t.id}</td>
+                        <td>${t.title}</td>
+                        <td>${t.status}</td>
+                        <td>${t.priority}</td>
+                        <td>${t.due_date || ""}</td>
+                    </tr>
+                `;
+            });
+
+            taskTable.innerHTML = rows;
+        }
+
+        loadTasks();
+
+    </script>
+
+</body>
+
+</html>

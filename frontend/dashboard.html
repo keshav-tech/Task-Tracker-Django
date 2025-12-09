@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="nav">
+        <a href="projects.html">Projects</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+
+    <h2>Dashboard Overview</h2>
+
+    <div id="dash"></div>
+
+    <script src="utils.js"></script>
+    <script>
+
+        async function loadDashboard() {
+            const response = await fetch("http://127.0.0.1:8000/dashboard/", {
+                credentials: "include"
+            });
+
+            const data = await safeJson(response);
+
+            dash.innerHTML = `
+                <p><b>Total Projects:</b> ${data.total_projects}</p>
+                <p><b>Total Tasks:</b> ${data.total_tasks}</p>
+
+                <h3>Tasks by Status</h3>
+                <pre>${JSON.stringify(data.tasks_by_status, null, 2)}</pre>
+
+                <h3>Upcoming Tasks</h3>
+                <pre>${JSON.stringify(data.upcoming_tasks, null, 2)}</pre>
+            `;
+        }
+
+        loadDashboard();
+
+    </script>
+
+</body>
+
+</html>
